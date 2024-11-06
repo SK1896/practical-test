@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+    environment {
+        KUBECONFIG = '/home/velocity/.kube/config'  // Path to the kubeconfig file
+    }
+    stages {
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Print the current context (optional, for debugging)
+                sh 'kubectl config current-context'
+
+                // Apply the Kubernetes manifest
+                sh 'kubectl apply -f /mnt/deploy.yaml'
+				sh 'kubectl apply -f /mnt/service.yaml'
+            }
+        }
+    }
+}
+

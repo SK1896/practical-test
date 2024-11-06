@@ -1,0 +1,19 @@
+pipeline {
+    agent {
+		label{
+			label "built-in"
+			customWorkspace "/mnt"
+		}
+	}
+    stages {
+        stage('clone_from_bitbucket') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'bitbucket', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'yum install git -y'
+					sh 'echo "PASSWORD" '
+					sh 'git clone https://${USERNAME}-admin@bitbucket.org/boot2222/git.git'
+                }
+            }
+        }
+    }
+}

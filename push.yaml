@@ -1,0 +1,66 @@
+pipeline{
+	agent{
+		label {
+			label "built-in"
+			customWorkspace "/mnt"
+	}
+	}
+	environment {
+        DOCKER_IMAGE = 'sudarshan1896/my:1.0'  // Docker image name and tag
+    }
+		stages {
+			stage('git'){
+				steps{
+					sh "yum update -y"
+					sh "yum install java-17-amazon-corretto.x86_64 docker -y"
+					
+				
+					
+
+				}
+			}
+			stage('mvn'){
+				steps{
+				dir("/mnt/git/"){
+				
+						sh "mvn clean install -DskipTests=true"
+						}
+					
+				}
+			}
+			
+			stage('copy') {
+				steps{
+					
+						sh "cp -r /mnt/git/target/SpringBootExecutableJarFileDemo-0.0.1-SNAPSHOT.jar /mnt/velocity/"
+					
+				}
+			}
+			
+			stage('docker_login'){
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin'
+                }
+            }
+			}
+			
+			stage('dockercommands'){
+				steps{
+					sh "systemctl start docker || service docker start"
+					dir("/mnt/velocity/"){
+					sh "docker build -t sudarshan1896/my:1.0 ."
+					}
+				}
+			}
+			stage ('docker'){
+			steps{
+				sh 'docker push $DOCKER_IMAGE'  // Push the image
+			}
+		}
+		
+		
+			
+	}
+
+}
